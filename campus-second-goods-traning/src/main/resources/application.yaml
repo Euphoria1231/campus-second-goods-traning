@@ -1,0 +1,13 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: hmdp
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    datasource:
+    url: jdbc:mysql://192.168.1.100:3306/?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 0.
+mybatis-plus:
+  type-aliases-package: com.hmdp.entity # 别名扫描包
