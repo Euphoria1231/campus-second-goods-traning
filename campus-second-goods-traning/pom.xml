@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.6.13</spring-boot.version>
-        <lombok>1.18.20</lombok>
+        <lombok>1.18.24</lombok>
         <fastjson>1.2.76</fastjson>
     </properties>
     <dependencies>
@@ -65,6 +65,11 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson}</version>
         </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -95,8 +100,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>org.example.campussecondgoodstraning.CampusSecondGoodsTraningApplication</mainClass>
-                    <skip>true</skip>
+                    <mainClass>com.campus.CApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
