@@ -5,8 +5,7 @@ spring:
     name: hmdp
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    datasource:
-    url: jdbc:mysql://192.168.1.100:3306/?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://117.72.183.76:3306/secondtrading
     username: root
     password: 0.
 mybatis-plus:

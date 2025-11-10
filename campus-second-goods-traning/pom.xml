@@ -65,6 +65,26 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson}</version>
         </dependency>
+
+        <!-- JWT依赖-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <!-- 对于 Java 11+ 兼容的 JAXB API -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <!-- JAXB 实现 -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.8</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
