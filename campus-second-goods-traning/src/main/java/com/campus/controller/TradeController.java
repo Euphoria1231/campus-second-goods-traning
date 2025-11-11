@@ -1,14 +1,13 @@
 package com.campus.controller;
 
 import com.campus.entity.Trade;
+import com.campus.entity.TradeCreateDTO;
 import com.campus.entity.TradePageQueryDTO;
-import com.campus.result.PageResult;
-import com.campus.result.Result;
+import com.campus.traderesult.PageResult;
+import com.campus.traderesult.Result;
 import com.campus.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/trades")
@@ -16,7 +15,6 @@ public class TradeController {
 
     @Autowired
     private TradeService tradeService;
-
     // 获取交易列表
     /*
     @GetMapping
@@ -24,6 +22,15 @@ public class TradeController {
         System.out.println(status);
         return Result.success(tradeService.getTrades(status));
     }*/
+
+    @PostMapping()
+    public Result addTrade(@RequestBody TradeCreateDTO tradeCreateDTO) {
+        System.out.println(tradeCreateDTO);
+        Trade trade = new Trade();
+        trade=tradeService.createTrade(tradeCreateDTO);
+        return Result.success(trade.getId());
+    }
+
 
     @GetMapping
     public Result<PageResult> pageQuery(TradePageQueryDTO tradePageQueryDTO){
@@ -37,7 +44,9 @@ public class TradeController {
     public Result<Trade> getTradeById(@PathVariable Long id) {
         System.out.println("查看交易");
         System.out.println(id);
-        return Result.success(tradeService.getTradeById(id));
+        Trade trade = tradeService.getTradeById(id);
+        System.out.println(trade);
+        return Result.success(trade);
     }
 
     // 更新交易状态

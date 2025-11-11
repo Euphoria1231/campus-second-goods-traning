@@ -5,6 +5,36 @@
 
 <mapper namespace="com.campus.mapper.TradeMapper">
 
+    <insert id="insertOneTrade" parameterType="com.campus.entity.Trade"
+            useGeneratedKeys="true"  keyProperty="id">
+        INSERT INTO trade (
+        product_id,
+        product_title,
+        product_price,
+        product_image,
+        buyer_id,
+        seller_id,
+        status,
+        total_amount,
+        quantity,
+        shipping_address,
+        created_at,
+        updated_at
+        ) VALUES (
+        #{productId},
+        #{productTitle},
+        #{productPrice},
+        #{productImage},
+        #{buyerId},
+        #{sellerId},
+        #{status},
+        #{totalAmount},
+        #{quantity},
+        #{shippingAddress},
+        #{createdAt},  <!-- 直接使用，MyBatis 自动处理类型转换 -->
+        #{updatedAt}   <!-- 直接使用，MyBatis 自动处理类型转换 -->
+        )
+    </insert>
     <!-- 查询交易列表 -->
     <select id="pageQuery" resultType="com.campus.entity.Trade">
         SELECT * FROM trade
