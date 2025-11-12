@@ -1,4 +1,4 @@
-package com.campus.traderesult;
+package com.campus.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

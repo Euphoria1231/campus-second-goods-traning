@@ -3,7 +3,7 @@ package com.campus.service;
 import com.campus.entity.Trade;
 import com.campus.entity.TradeCreateDTO;
 import com.campus.entity.TradePageQueryDTO;
-import com.campus.traderesult.PageResult;
+import com.campus.utils.PageResult;
 
 public interface TradeService {
     //List<Trade> getTrades(String status);

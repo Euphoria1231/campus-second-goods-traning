@@ -6,7 +6,7 @@ import com.campus.entity.Trade;
 import com.campus.entity.TradeCreateDTO;
 import com.campus.entity.TradePageQueryDTO;
 import com.campus.mapper.TradeMapper;
-import com.campus.traderesult.PageResult;
+import com.campus.utils.PageResult;
 import com.campus.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
