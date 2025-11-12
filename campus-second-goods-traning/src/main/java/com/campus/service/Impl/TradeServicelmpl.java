@@ -6,6 +6,7 @@ import com.campus.entity.Trade;
 import com.campus.entity.TradeCreateDTO;
 import com.campus.entity.TradePageQueryDTO;
 import com.campus.mapper.TradeMapper;
+import com.campus.util.CurrentHolder;
 import com.campus.utils.PageResult;
 import com.campus.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +49,12 @@ public class TradeServicelmpl implements TradeService {
     }
 
     @Override
-    public PageResult pageQuery(TradePageQueryDTO tradePageQueryDTO) {
+    public PageResult pageQuery(TradePageQueryDTO tradePageQueryDTO,Integer currentUserId) {
         Page<Trade> page = new Page<>(tradePageQueryDTO.getPage(), tradePageQueryDTO.getPageSize());
 
-        // 添加日志
         System.out.println("执行分页查询，参数: " + tradePageQueryDTO);
 
-        // 确保这里调用的是正确的 mapper 方法
-        IPage<Trade> tradePage = tradeMapper.pageQuery(page, tradePageQueryDTO);
+        IPage<Trade> tradePage = tradeMapper.pageQuery(page, tradePageQueryDTO,currentUserId.longValue());
 
         System.out.println("查询结果总数: " + tradePage.getTotal());
         System.out.println("查询结果记录数: " + tradePage.getRecords().size());

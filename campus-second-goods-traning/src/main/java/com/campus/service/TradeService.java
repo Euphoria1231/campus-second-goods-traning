@@ -9,7 +9,7 @@ public interface TradeService {
     //List<Trade> getTrades(String status);
 
     Trade createTrade(TradeCreateDTO tradeCreateDTO);
-     PageResult pageQuery(TradePageQueryDTO tradePageQueryDTO);
+     PageResult pageQuery(TradePageQueryDTO tradePageQueryDTO,Integer currentUserId);
     Trade getTradeById(Long id);
     Trade updateTradeStatus(Long id, String status);
 }

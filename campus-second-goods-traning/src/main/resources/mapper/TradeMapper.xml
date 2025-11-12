@@ -39,8 +39,11 @@
     <select id="pageQuery" resultType="com.campus.entity.Trade">
         SELECT * FROM trade
         <where>
+            <!-- 只查询当前用户作为买家或卖家的交易 -->
+            (buyer_id = #{currentUserId} OR seller_id = #{currentUserId})
+
             <if test="dto.status != null and dto.status != ''">
-                status = #{dto.status}
+                AND status = #{dto.status}
             </if>
         </where>
         ORDER BY created_at DESC
