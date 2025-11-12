@@ -18,12 +18,37 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
         goods.setCreateTime(LocalDateTime.now());
         goods.setUpdateTime(LocalDateTime.now());
         goods.setStatus("ACTIVE");
+        
+        // 设置默认值（如果为空）
+        if (goods.getTradeTime() == null || goods.getTradeTime().trim().isEmpty()) {
+            goods.setTradeTime("面议");
+        }
+        if (goods.getTradeLocation() == null || goods.getTradeLocation().trim().isEmpty()) {
+            goods.setTradeLocation("校内面交");
+        }
+        if (goods.getImageUrl() == null || goods.getImageUrl().trim().isEmpty()) {
+            goods.setImageUrl("https://via.placeholder.com/400x300?text=No+Image");
+        }
+        
         return save(goods);
     }
     
     @Override
     public boolean updateGoods(Goods goods) {
+        // 设置更新时间
         goods.setUpdateTime(LocalDateTime.now());
+        
+        // 设置默认值（如果为空）
+        if (goods.getTradeTime() == null || goods.getTradeTime().trim().isEmpty()) {
+            goods.setTradeTime("面议");
+        }
+        if (goods.getTradeLocation() == null || goods.getTradeLocation().trim().isEmpty()) {
+            goods.setTradeLocation("校内面交");
+        }
+        if (goods.getImageUrl() == null || goods.getImageUrl().trim().isEmpty()) {
+            goods.setImageUrl("https://via.placeholder.com/400x300?text=No+Image");
+        }
+        
         return updateById(goods);
     }
     
