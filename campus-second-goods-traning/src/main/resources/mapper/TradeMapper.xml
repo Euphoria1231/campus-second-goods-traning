@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.mapper.TradeMapper">
+
+    <insert id="insertOneTrade" parameterType="com.campus.entity.Trade"
+            useGeneratedKeys="true"  keyProperty="id">
+        INSERT INTO trade (
+        product_id,
+        product_title,
+        product_price,
+        product_image,
+        buyer_id,
+        seller_id,
+        status,
+        total_amount,
+        quantity,
+        shipping_address,
+        created_at,
+        updated_at
+        ) VALUES (
+        #{productId},
+        #{productTitle},
+        #{productPrice},
+        #{productImage},
+        #{buyerId},
+        #{sellerId},
+        #{status},
+        #{totalAmount},
+        #{quantity},
+        #{shippingAddress},
+        #{createdAt},  <!-- 直接使用，MyBatis 自动处理类型转换 -->
+        #{updatedAt}   <!-- 直接使用，MyBatis 自动处理类型转换 -->
+        )
+    </insert>
+    <!-- 查询交易列表 -->
+    <select id="pageQuery" resultType="com.campus.entity.Trade">
+        SELECT * FROM trade
+        <where>
+            <!-- 只查询当前用户作为买家或卖家的交易 -->
+            (buyer_id = #{currentUserId} OR seller_id = #{currentUserId})
+
+            <if test="dto.status != null and dto.status != ''">
+                AND status = #{dto.status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <!-- 查询单个交易详情 -->
+    <select id="selectTradeById" resultType="com.campus.entity.Trade">
+        SELECT * FROM trade WHERE id = #{id}
+    </select>
+
+    <!-- 更新交易状态 -->
+    <update id="updateTradeStatus">
+        UPDATE trade
+        SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>
