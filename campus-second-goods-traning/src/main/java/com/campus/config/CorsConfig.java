@@ -16,18 +16,30 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // 允许前端地址
-        config.addAllowedOrigin("http://localhost:5173");
+        // 允许前端地址（明确指定，不能用通配符*）
+        config.addAllowedOriginPattern("http://localhost:5173");
+        config.addAllowedOriginPattern("http://127.0.0.1:5173");
+        
         // 允许所有HTTP方法，包括OPTIONS
-        config.addAllowedMethod("*");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("HEAD");
+        
         // 允许所有请求头
         config.addAllowedHeader("*");
+        
         // 允许暴露的响应头
         config.addExposedHeader("token");
+        config.addExposedHeader("Authorization");
+        
         // 允许携带认证信息（cookies等）
         config.setAllowCredentials(true);
+        
         // 设置预检请求的缓存时间（秒）
-//        config.setMaxAge(3600L);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // 对所有路径应用CORS配置

@@ -1,8 +1,12 @@
 package com.campus.controller;
 
 import com.campus.entity.Goods;
+import com.campus.entity.Users;
+import com.campus.mapper.LoginMapper;
 import com.campus.service.GoodsService;
+import com.campus.util.CurrentHolder;
 import com.campus.utils.Result;
+import com.campus.vo.GoodsDetailVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +16,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/goods")
-@CrossOrigin(origins = "*")
 @Slf4j
 public class GoodsController {
     
     @Autowired
     private GoodsService goodsService;
+    
+    @Autowired
+    private LoginMapper loginMapper;
     
     /**
      * 创建商品
@@ -25,7 +31,17 @@ public class GoodsController {
     @PostMapping("/create")
     public Result<Boolean> createGoods(@Valid @RequestBody Goods goods) {
         try {
-            log.info("创建商品请求: {}", goods.getName());
+            // 从ThreadLocal获取当前用户ID
+            Integer currentUserId = CurrentHolder.getCurrentId();
+            if (currentUserId == null) {
+                log.warn("未获取到当前用户ID");
+                return Result.fail("用户未登录");
+            }
+            
+            // 设置卖家ID为当前用户
+            goods.setSellerId(Long.valueOf(currentUserId));
+            log.info("创建商品请求: {}, 卖家ID: {}", goods.getName(), currentUserId);
+            
             boolean success = goodsService.createGoods(goods);
             if (success) {
                 log.info("商品创建成功: {}", goods.getName());
@@ -46,31 +62,68 @@ public class GoodsController {
     @PutMapping("/update")
     public Result<Boolean> updateGoods(@Valid @RequestBody Goods goods) {
         try {
+            // 从ThreadLocal获取当前用户ID
+            Integer currentUserId = CurrentHolder.getCurrentId();
+            if (currentUserId == null) {
+                log.warn("未获取到当前用户ID");
+                return Result.fail("用户未登录");
+            }
+            
+            // 检查商品是否存在
+            Goods existingGoods = goodsService.getGoodsById(goods.getId());
+            if (existingGoods == null) {
+                return Result.fail("商品不存在");
+            }
+            
+            // 权限校验：只有卖家本人可以修改
+            if (!existingGoods.getSellerId().equals(Long.valueOf(currentUserId))) {
+                log.warn("用户{}尝试修改不属于自己的商品{}", currentUserId, goods.getId());
+                return Result.fail("您无权修改此商品");
+            }
+            
             boolean success = goodsService.updateGoods(goods);
             if (success) {
+                log.info("商品修改成功: 商品ID={}, 用户ID={}", goods.getId(), currentUserId);
                 return Result.success(true, "商品修改成功");
             } else {
                 return Result.fail("商品修改失败");
             }
         } catch (Exception e) {
+            log.error("商品修改异常", e);
             return Result.fail("商品修改失败: " + e.getMessage());
         }
     }
     
     /**
-     * 根据ID获取商品
+     * 根据ID获取商品详情（包含卖家信息）
      */
     @GetMapping("/{id}")
-    public Result<Goods> getGoodsById(@PathVariable Long id) {
+    public Result<GoodsDetailVo> getGoodsById(@PathVariable Long id) {
         try {
             Goods goods = goodsService.getGoodsById(id);
-            if (goods != null) {
-                return Result.success(goods, "获取商品成功");
-            } else {
+            if (goods == null) {
                 return Result.fail("商品不存在");
             }
+            
+            // 构建返回对象
+            GoodsDetailVo detailVo = new GoodsDetailVo();
+            detailVo.setGoods(goods);
+            
+            // 获取卖家信息
+            Users seller = loginMapper.findById(goods.getSellerId().intValue());
+            if (seller != null) {
+                GoodsDetailVo.SellerInfo sellerInfo = new GoodsDetailVo.SellerInfo();
+                sellerInfo.setSellerId(goods.getSellerId());
+                sellerInfo.setUsername(seller.getUsername());
+                sellerInfo.setAvatarUrl(seller.getAvatarUrl());
+                sellerInfo.setCreditScore(seller.getCreditScore());
+                detailVo.setSeller(sellerInfo);
+            }
+            
+            return Result.success(detailVo, "获取商品详情成功");
         } catch (Exception e) {
-            return Result.fail("获取商品失败: " + e.getMessage());
+            log.error("获取商品详情失败", e);
+            return Result.fail("获取商品详情失败: " + e.getMessage());
         }
     }
     
@@ -119,13 +172,34 @@ public class GoodsController {
     @DeleteMapping("/{id}")
     public Result<Boolean> deleteGoods(@PathVariable Long id) {
         try {
+            // 从ThreadLocal获取当前用户ID
+            Integer currentUserId = CurrentHolder.getCurrentId();
+            if (currentUserId == null) {
+                log.warn("未获取到当前用户ID");
+                return Result.fail("用户未登录");
+            }
+            
+            // 检查商品是否存在
+            Goods existingGoods = goodsService.getGoodsById(id);
+            if (existingGoods == null) {
+                return Result.fail("商品不存在");
+            }
+            
+            // 权限校验：只有卖家本人可以删除
+            if (!existingGoods.getSellerId().equals(Long.valueOf(currentUserId))) {
+                log.warn("用户{}尝试删除不属于自己的商品{}", currentUserId, id);
+                return Result.fail("您无权删除此商品");
+            }
+            
             boolean success = goodsService.deleteGoods(id);
             if (success) {
+                log.info("商品删除成功: 商品ID={}, 用户ID={}", id, currentUserId);
                 return Result.success(true, "商品删除成功");
             } else {
                 return Result.fail("商品删除失败");
             }
         } catch (Exception e) {
+            log.error("商品删除异常", e);
             return Result.fail("商品删除失败: " + e.getMessage());
         }
     }

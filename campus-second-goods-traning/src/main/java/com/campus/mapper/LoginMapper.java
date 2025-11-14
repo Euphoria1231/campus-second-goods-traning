@@ -17,4 +17,14 @@ public interface LoginMapper {
             "real_name, school_id, credit_score, created_at, updated_at " +
             "FROM users WHERE username = #{username} And password = #{password}")
     Users findByUsername(@Param("username") String username, @Param("password") String password);
+    
+    /**
+     * 根据用户ID查询用户信息
+     * @param userId 用户ID
+     * @return 用户信息
+     */
+    @Select("SELECT user_id, username, email, phone_number, avatar_url, " +
+            "real_name, school_id, credit_score, created_at, updated_at " +
+            "FROM users WHERE user_id = #{userId}")
+    Users findById(@Param("userId") Integer userId);
 }
