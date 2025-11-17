@@ -2,54 +2,53 @@ package com.campus.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
-
 
 @Data
 @TableName("chat_message")
 public class ChatMessage {
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("session_id")
-    private String sessionId;
+    // 商品ID
+    private Long productId;
 
-    @TableField("sender_id")
+    // 发送者ID
     private Long senderId;
 
-    @TableField("receiver_id")
+    // 接收者ID
     private Long receiverId;
 
-    @TableField("content")
+    // 消息内容
     private String content;
 
-    @TableField("message_type")
-    private Integer messageType = 1; // 1-文本消息
+    // 消息类型: TEXT, IMAGE, SYSTEM
+    private String messageType;
 
-    @TableField("is_read")
-    private Boolean isRead = false; // 默认未读
+    // 是否已读
+    private Boolean isRead;
 
-    @TableField("send_time")
+    // 发送时间
     private LocalDateTime sendTime;
 
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
+    // 会话ID
+    private String sessionId;
 
-    // 非数据库字段，用于前端显示
-    @TableField(exist = false)
-    private String senderName;
+    // 逻辑删除字段（如果数据库表中有此字段，可以取消注释下面的注解）
+    // @TableLogic
+    // private Integer deleted;
 
-    @TableField(exist = false)
-    private String receiverName;
+    public static String generateSessionId(Long fromUserId, Long toUserId) {
+        if (fromUserId == null || toUserId == null) {
+            throw new IllegalArgumentException("用户ID不能为null");
+        }
 
+        // 保证小的ID在前，大的ID在后
+        Long smaller = Math.min(fromUserId, toUserId);
+        Long larger = Math.max(fromUserId, toUserId);
 
-    // 生成会话ID的静态方法
-    public static String generateSessionId(Long userId1, Long userId2) {
-        return userId1 < userId2 ?
-                userId1 + "_" + userId2 :
-                userId2 + "_" + userId1;
+        return smaller + "_" + larger;
     }
 
 }

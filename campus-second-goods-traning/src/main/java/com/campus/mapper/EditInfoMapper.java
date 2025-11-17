@@ -1,22 +1,13 @@
 package com.campus.mapper;
 
-import com.campus.entity.Goods;
 import com.campus.entity.Users;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.List;
-
 @Mapper
 public interface EditInfoMapper {
-
-    /**
-     * 查询用户近期的商品信息
-     */
-    @Select("select * from goods where seller_id = #{userId}")
-    List<Goods> findRecentGoods(@Param("userId") Integer userId);
 
     /**
      * 根据用户ID查询用户信息

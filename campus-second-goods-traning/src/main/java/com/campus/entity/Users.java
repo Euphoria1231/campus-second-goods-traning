@@ -1,5 +1,9 @@
 package com.campus.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@TableName("users")
 public class Users {
     /*
     * user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID，主键',
@@ -24,6 +29,7 @@ public class Users {
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
     *
     */
+    @TableId(type = IdType.AUTO)
     private Integer userId;
     private String username;
     private String password;
@@ -35,5 +41,15 @@ public class Users {
     private Integer creditScore;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String token; //令牌
+    
+    @TableField(exist = false)  // 标记为不存在于数据库的字段
+    private String token; //令牌（仅用于业务逻辑，不存储在数据库）
+
+    public String getNickname() {
+        return username;
+    }
+
+    public String getAvatar() {
+        return avatarUrl;
+    }
 }

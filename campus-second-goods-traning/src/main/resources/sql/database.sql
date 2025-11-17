@@ -34,6 +34,59 @@ INSERT INTO goods (name, description, price, category, condition_status, image_u
 ('保温杯', '不锈钢保温杯，500ml容量', 68.00, '生活用品', '全新', 'https://example.com/cup.jpg', '中午12-1点', '食堂门口', '13543210976', 4, 'ACTIVE'),
 ('篮球', '斯伯丁篮球，标准7号球', 158.00, '体育用品', '九成新', 'https://example.com/basketball.jpg', '晚上6-8点', '篮球场', '13432109865', 5, 'ACTIVE');
 
+-- 创建交易表
+CREATE TABLE IF NOT EXISTS trade (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '交易ID',
+    product_id BIGINT NOT NULL COMMENT '商品ID',
+    product_title VARCHAR(100) NOT NULL COMMENT '商品标题',
+    product_price DECIMAL(10,2) NOT NULL COMMENT '商品价格',
+    product_image VARCHAR(500) COMMENT '商品图片',
+    buyer_id BIGINT NOT NULL COMMENT '买家ID',
+    seller_id BIGINT NOT NULL COMMENT '卖家ID',
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '交易状态：PENDING-待处理，ACCEPTED-已接受，SHIPPED-已发货，COMPLETED-已完成，CANCELLED-已取消',
+    total_amount DECIMAL(10,2) NOT NULL COMMENT '总金额',
+    quantity INT DEFAULT 1 COMMENT '数量',
+    shipping_address VARCHAR(200) COMMENT '收货地址',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='交易表';
+
+-- 创建评价表
+CREATE TABLE IF NOT EXISTS review (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '评价ID',
+    order_id BIGINT NOT NULL COMMENT '订单ID（交易ID）',
+    reviewer_id BIGINT NOT NULL COMMENT '评论者ID',
+    reviewee_id BIGINT NOT NULL COMMENT '被评论者ID',
+    product_id BIGINT NOT NULL COMMENT '商品ID',
+    rating INT NOT NULL COMMENT '评分（1-5分）',
+    content TEXT COMMENT '评价内容',
+    anonymity BOOLEAN DEFAULT FALSE COMMENT '是否匿名，0-不匿名，1-匿名',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_order_id (order_id),
+    INDEX idx_reviewer_id (reviewer_id),
+    INDEX idx_reviewee_id (reviewee_id),
+    INDEX idx_product_id (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评价表';
+
+-- 创建举报表
+CREATE TABLE IF NOT EXISTS report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '举报ID',
+    reporter_id BIGINT NOT NULL COMMENT '举报人ID',
+    reported_id BIGINT NOT NULL COMMENT '被举报对象ID',
+    report_type VARCHAR(20) NOT NULL COMMENT '举报类型：GOODS-商品，USER-用户，REVIEW-评价',
+    target_id BIGINT NOT NULL COMMENT '目标ID（商品ID、用户ID或评价ID）',
+    reason VARCHAR(200) NOT NULL COMMENT '举报原因',
+    description TEXT COMMENT '详细描述',
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '处理状态：PENDING-待处理，PROCESSING-处理中，RESOLVED-已解决，REJECTED-已拒绝',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_reporter_id (reporter_id),
+    INDEX idx_reported_id (reported_id),
+    INDEX idx_report_type (report_type),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='举报表';
+
 -- 查看表结构
 DESCRIBE goods;
 

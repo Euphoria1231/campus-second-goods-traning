@@ -1,6 +1,7 @@
 package com.campus.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("review")
 public class Review {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id;
     //订单id
     private Long orderId;

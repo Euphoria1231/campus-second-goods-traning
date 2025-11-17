@@ -1,17 +1,12 @@
 package com.campus.service.Impl;
 
-import com.campus.entity.Goods;
 import com.campus.entity.Users;
 import com.campus.mapper.EditInfoMapper;
 import com.campus.service.EditInfoService;
 import com.campus.vo.UpdateUserVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Service
 public class EditInfoServiceImpl implements EditInfoService {
@@ -19,7 +14,6 @@ public class EditInfoServiceImpl implements EditInfoService {
     @Autowired
     private EditInfoMapper editInfoMapper;
 
-    //获取信息
     @Override
     public Users getUserInfo(Integer userId) {
         if (userId == null || userId <= 0) {
@@ -36,20 +30,6 @@ public class EditInfoServiceImpl implements EditInfoService {
         return user;
     }
 
-    //近期商品
-    @Override
-    public PageInfo<Goods> findRecentGoodsByPage(Integer userId, int pageNum, int pageSize) {
-        // ⚠️ 关键：在查询前调用 PageHelper.startPage
-        PageHelper.startPage(pageNum, pageSize);
-
-        // 调用你的原始查询方法（无需修改 Mapper）
-        List<Goods> goodsList = editInfoMapper.findRecentGoods(userId);
-
-        // 使用 PageInfo 封装结果（包含 total、pages、list 等）
-        return new PageInfo<>(goodsList);
-    }
-
-    //更新信息
     @Override
     public Users updateUserInfo(UpdateUserVo updateUserVo) {
         // 1. 参数校验

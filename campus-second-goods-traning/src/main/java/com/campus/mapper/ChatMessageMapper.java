@@ -3,11 +3,14 @@ package com.campus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.campus.entity.ChatMessage;
+import com.campus.vo.SessionVO;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
+@Mapper
 public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
 
     /**
@@ -49,4 +52,8 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      */
     @Select("SELECT COUNT(*) FROM chat_message WHERE session_id = #{sessionId} AND receiver_id = #{userId} AND is_read = false")
     Long countUnreadBySession(@Param("sessionId") String sessionId, @Param("userId") Long userId);
+
+    List<SessionVO> selectSessionsByUserId(Long userId);
+
+    void markAsRead(String sessionId, Long userId);
 }
