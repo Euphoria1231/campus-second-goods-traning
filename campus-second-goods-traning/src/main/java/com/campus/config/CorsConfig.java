@@ -17,9 +17,10 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
        // 允许前端地址（明确指定，不能用通配符*）
+        config.addAllowedOriginPattern("http://localhost:5173");
+        config.addAllowedOriginPattern("http://127.0.0.1:5173");
         config.addAllowedOriginPattern("http://localhost:5500");
         config.addAllowedOriginPattern("http://127.0.0.1:5500");
-        
         // 允许所有HTTP方法，包括OPTIONS
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");

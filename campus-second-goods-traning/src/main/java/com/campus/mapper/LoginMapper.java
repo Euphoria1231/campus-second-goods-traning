@@ -17,7 +17,8 @@ public interface LoginMapper {
             "real_name, school_id, credit_score, created_at, updated_at " +
             "FROM users WHERE username = #{username} And password = #{password}")
     Users findByUsername(@Param("username") String username, @Param("password") String password);
-    
+
+    //不是，鸽们，EditInfoMapper里面第一个接口不就是根据用户ID查询用户信息吗？
     /**
      * 根据用户ID查询用户信息
      * @param userId 用户ID

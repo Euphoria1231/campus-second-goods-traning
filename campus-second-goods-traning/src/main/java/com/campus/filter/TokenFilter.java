@@ -16,90 +16,68 @@ import java.io.IOException;
 @WebFilter(urlPatterns = "/*")
 public class TokenFilter implements Filter {
 
+    //注意：tokenfilter不会拦截任何请求，但要通过token解析获取到用户ID
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
 
-        // ========== 原始过滤逻辑已注释，直接放行所有请求 ==========
-        /*
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        try {
-            // 1. 获取请求url
-            String requestURL = request.getRequestURL().toString();
-            log.info("请求URL: {}", requestURL);
+        String requestURL = request.getRequestURL().toString();
+        log.info("请求URL: {}", requestURL);
 
-            // 2. 判断请求url中是否包含login、register、forgot-password，如果包含，放行
-            if (requestURL.contains("/api/user/login") || requestURL.contains("/api/user/register") || requestURL.contains("/api/user/verify-identity") || requestURL.contains("/api/user/reset-password")) {
-                log.info("请求可以直接放行");
-                filterChain.doFilter(servletRequest, servletResponse);
-                return;
+        // 即使是登录/注册等公开接口，也尝试解析 token
+        String token = request.getHeader("token");
+
+        Integer userId = null;
+        String username = null;
+
+        if (StringUtils.hasText(token)) {
+            try {
+                // 清理 Bearer 前缀
+                if (token.startsWith("Bearer ")) {
+                    token = token.substring(7);
+                }
+
+                // 尝试解析 token
+                Claims claims = JwtUtils.parseJWT(token);
+                userId = claims.get("userId", Integer.class);
+                username = claims.get("username", String.class);
+
+                log.info("Token 解析成功，用户ID: {}, 用户名: {}", userId, username);
+
+                // 设置到 ThreadLocal 和 Request Attribute
+                CurrentHolder.setCurrentId(userId);
+                request.setAttribute("userId", userId);
+                request.setAttribute("username", username);
+
+            } catch (Exception e) {
+                log.warn("Token 解析失败，但忽略: {}", e.getMessage());
+                // 不中断流程，不清除已设属性，继续放行
             }
-
-            // 3. 获取请求头中的令牌（token）
-            String token = request.getHeader("token");
-            log.info("获取到的Token: {}", token);
-
-            // 4. 判断令牌是否存在，如果不存在，响应 401
-            if (!StringUtils.hasText(token)) {
-                log.warn("令牌不存在，返回401未授权");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"code\":401,\"message\":\"未授权访问，请先登录\"}");
-                return;
-            }
-
-            // 清理Bearer前缀（如果存在）
-            if (token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-
-            // 5. 解析token
-            Claims claims = JwtUtils.parseJWT(token);
-            Integer userId = claims.get("userId", Integer.class);
-            String username = claims.get("username", String.class);
-
-            log.info("令牌解析成功，用户信息: userId={}, username={}", userId, username);
-
-            // 将用户ID存入ThreadLocal
-            CurrentHolder.setCurrentId(userId);
-            log.info("已将用户ID存入ThreadLocal: userId={}", userId);
-
-            // 将用户信息存入请求属性，供后续使用
-            request.setAttribute("userId", userId);
-            request.setAttribute("username", username);
-
-            // 6. 放行
-            log.info("令牌校验通过，放行请求");
-            filterChain.doFilter(servletRequest, servletResponse);
-
-        } catch (Exception e) {
-            log.error("令牌解析失败: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"令牌无效或已过期\"}");
-        } finally {
-            // 无论请求成功还是失败，都要清理ThreadLocal，防止内存泄漏
-            CurrentHolder.remove();
-            log.info("已清理ThreadLocal中的用户ID");
+        } else {
+            log.debug("请求中未携带 token");
         }
-        */
 
-        // 直接放行所有请求
-        log.info("TokenFilter: 已禁用过滤，直接放行所有请求");
-        filterChain.doFilter(servletRequest, servletResponse);
+        // ========== 关键：无论是否有 token，一律放行！==========
+        try {
+            filterChain.doFilter(servletRequest, servletResponse);
+        } finally {
+            // 清理 ThreadLocal，防止内存泄漏
+            CurrentHolder.remove();
+            log.debug("已清理 ThreadLocal 中的用户上下文");
+        }
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("TokenFilter初始化完成");
+    public void init(FilterConfig filterConfig) {
+        log.info("TokenFilter 初始化完成");
     }
 
     @Override
     public void destroy() {
-        log.info("TokenFilter销毁");
-        // 确保销毁时清理ThreadLocal
+        log.info("TokenFilter 销毁");
         CurrentHolder.remove();
     }
 }
