@@ -5,6 +5,7 @@ import com.campus.entity.Users;
 import com.campus.vo.UpdateUserVo;
 import com.github.pagehelper.PageInfo;
 
+
 public interface EditInfoService {
 
     /**
