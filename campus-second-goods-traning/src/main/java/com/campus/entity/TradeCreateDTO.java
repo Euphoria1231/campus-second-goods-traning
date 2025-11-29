@@ -14,5 +14,4 @@ public class TradeCreateDTO {
     private String image_url;
     private String trade_localtion;
     private Long seller_id;
-    private Long buyer_id;
 }

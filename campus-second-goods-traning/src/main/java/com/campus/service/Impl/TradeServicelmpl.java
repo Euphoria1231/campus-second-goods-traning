@@ -28,10 +28,18 @@ public class TradeServicelmpl implements TradeService {
 
     @Override
     public Trade createTrade(TradeCreateDTO tradeCreateDTO) {
+        System.out.println("创建交易");
         Trade trade = new Trade();
-        System.out.println("生成的自增之前的 ID：" + trade.getId());
+
         trade.setProductId(tradeCreateDTO.getId());
-        trade.setBuyerId(tradeCreateDTO.getBuyer_id());
+
+        Integer currentUserId = CurrentHolder.getCurrentId();
+        // 添加空值检查
+        if (currentUserId == null) {
+            throw new IllegalStateException("无法获取当前用户ID");
+        }
+
+        trade.setBuyerId(currentUserId.longValue());
         trade.setSellerId(tradeCreateDTO.getSeller_id());
         trade.setProductImage(tradeCreateDTO.getImage_url());
         trade.setProductPrice(tradeCreateDTO.getPrice());
