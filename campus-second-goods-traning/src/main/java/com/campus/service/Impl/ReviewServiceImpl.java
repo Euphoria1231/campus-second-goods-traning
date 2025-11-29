@@ -2,14 +2,13 @@ package com.campus.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.campus.dto.UserDTO;
 import com.campus.entity.Review;
 import com.campus.entity.Trade;
 import com.campus.mapper.ReviewMapper;
 import com.campus.mapper.TradeMapper;
 import com.campus.service.ReviewService;
+import com.campus.util.CurrentHolder;
 import com.campus.utils.Result;
-import com.campus.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,14 +24,16 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
 
     @Override
     public Result<Boolean> saveReview(Review review) {
-        //1.获取当前登陆的用户
-        UserDTO user = UserHolder.getUser();
-        if (user == null) {
+        // 1.获取当前登陆的用户ID
+        Integer currentUserIdInt = CurrentHolder.getCurrentId();
+        if (currentUserIdInt == null) {
             return Result.fail("用户未登录");
         }
-        review.setReviewerId(user.getId());
-        
-        //2.验证交易是否存在且状态为COMPLETED
+        // 将Integer转换为Long
+        Long currentUserId = currentUserIdInt.longValue();
+        review.setReviewerId(currentUserId);
+
+        // 2.验证交易是否存在且状态为COMPLETED
         if (review.getOrderId() == null) {
             return Result.fail("订单ID不能为空");
         }
@@ -43,18 +44,17 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
         if (!"COMPLETED".equals(trade.getStatus())) {
             return Result.fail("只能对已完成的交易进行评价");
         }
-        
-        //3.检查是否已评价过该交易
+
+        // 3.检查是否已评价过该交易
         QueryWrapper<Review> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_id", review.getOrderId());
-        queryWrapper.eq("reviewer_id", user.getId());
+        queryWrapper.eq("reviewer_id", currentUserId);
         Review existingReview = getOne(queryWrapper);
         if (existingReview != null) {
             return Result.fail("您已经评价过该交易");
         }
-        
-        //4.设置被评价者ID（如果是买家评价，被评价者是卖家；如果是卖家评价，被评价者是买家）
-        Long currentUserId = user.getId();
+
+        // 4.设置被评价者ID（如果是买家评价，被评价者是卖家；如果是卖家评价，被评价者是买家）
         if (currentUserId.equals(trade.getBuyerId())) {
             review.setRevieweeId(trade.getSellerId());
         } else if (currentUserId.equals(trade.getSellerId())) {
@@ -62,18 +62,18 @@ public class ReviewServiceImpl extends ServiceImpl<ReviewMapper, Review> impleme
         } else {
             return Result.fail("您无权评价此交易");
         }
-        
-        //5.设置商品ID
+
+        // 5.设置商品ID
         review.setProductId(trade.getProductId());
-        
-        //6.保存评论信息到数据库
+
+        // 6.保存评论信息到数据库
         boolean issuccess = save(review);
-        //7.判断保存是否成功并返回
-        if(!issuccess){
-            log.error("保存评价失败，订单ID: {}, 评价者ID: {}", review.getOrderId(), user.getId());
-            return Result.fail(500,"保存失败，请重试");
+        // 7.判断保存是否成功并返回
+        if (!issuccess) {
+            log.error("保存评价失败，订单ID: {}, 评价者ID: {}", review.getOrderId(), currentUserId);
+            return Result.fail(500, "保存失败，请重试");
         }
-        log.info("评价保存成功，订单ID: {}, 评价者ID: {}", review.getOrderId(), user.getId());
+        log.info("评价保存成功，订单ID: {}, 评价者ID: {}", review.getOrderId(), currentUserId);
         return Result.success(true, "评价成功");
     }
 

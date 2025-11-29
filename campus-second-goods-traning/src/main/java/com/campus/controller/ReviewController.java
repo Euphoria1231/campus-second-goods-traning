@@ -1,16 +1,14 @@
 package com.campus.controller;
 
-import com.campus.dto.UserDTO;
 import com.campus.entity.Review;
 import com.campus.service.ReviewService;
+import com.campus.util.CurrentHolder;
 import com.campus.utils.Result;
-import com.campus.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @Slf4j
 @RestController
@@ -18,15 +16,15 @@ import java.util.List;
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
-    
+
     /**
      * 发布评价
      */
     @PostMapping
-    public Result<Boolean> saveReview(@RequestBody Review review){
+    public Result<Boolean> saveReview(@RequestBody Review review) {
         return reviewService.saveReview(review);
     }
-    
+
     /**
      * 根据商品ID查询评价列表
      */
@@ -34,7 +32,7 @@ public class ReviewController {
     public Result<List<Review>> getReviewsByProductId(@PathVariable Long productId) {
         return reviewService.getReviewsByProductId(productId);
     }
-    
+
     /**
      * 根据用户ID查询收到的评价列表
      */
@@ -42,7 +40,7 @@ public class ReviewController {
     public Result<List<Review>> getReviewsByUserId(@PathVariable Long userId) {
         return reviewService.getReviewsByRevieweeId(userId);
     }
-    
+
     /**
      * 根据交易ID查询评价
      */
@@ -50,16 +48,18 @@ public class ReviewController {
     public Result<Review> getReviewByOrderId(@PathVariable Long orderId) {
         return reviewService.getReviewByOrderId(orderId);
     }
-    
+
     /**
      * 查询我的评价列表（我发出的评价）
      */
     @GetMapping("/my")
     public Result<List<Review>> getMyReviews() {
-        UserDTO user = UserHolder.getUser();
-        if (user == null) {
+        Integer currentUserIdInt = CurrentHolder.getCurrentId();
+        if (currentUserIdInt == null) {
             return Result.fail("用户未登录");
         }
-        return reviewService.getReviewsByReviewerId(user.getId());
+        // 将Integer转换为Long
+        Long currentUserId = currentUserIdInt.longValue();
+        return reviewService.getReviewsByReviewerId(currentUserId);
     }
 }
